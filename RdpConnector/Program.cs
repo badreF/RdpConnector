@@ -6,16 +6,19 @@ namespace RdpConnector
 {
     class Program
     {
-
         static void Main(string[] args)
         {
             var rdpFileName = "cpub-FTE_Menu-PRO5-CmsRdsh.rdp";
             //_ = ResponseAsync().Result;
-            using (var client = new WebClient())
+            using (var client = new WebClient() {
+                UseDefaultCredentials = true
+            })
             {
+                //_api/web/GetFileByServerRelativeUrl('/Lists/Applications/Attachments/1/Gestion%20MP_Rec%20(Elior).rdp')/$value
+                //https://remoteapps.elior.net/RDWeb/Pages/rdp/cpub-FTE_Menu-PRO5-CmsRdsh.rdp
                 try
                 {
-                    client.DownloadFile("https://remoteapps.elior.net/RDWeb/Pages/rdp/cpub-FTE_Menu-PRO5-CmsRdsh.rdp", rdpFileName);
+                    client.DownloadFile("http://helios-rec.elior.net/_api/web/GetFileByServerRelativeUrl('/Lists/Applications/Attachments/1/Gestion%20MP_Rec%20(Elior).rdp')/$value", rdpFileName);
 
                 }
                 catch (Exception ex)
