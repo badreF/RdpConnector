@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -12,90 +11,49 @@ namespace RdpConnector
     /// </summary>
     class Program
     {
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         static void Main()
         {
-            GetAndLaunchRemoteConnection();
-
+            LaunchRemoteConnection();
         }
 
-        private static void GetAndLaunchRemoteConnection()
+        private static void LaunchRemoteConnection()
         {
-            var rdpFileName = ConfigurationManager.AppSettings.Get("rdpFileName");
-            //_ = ResponseAsync().Result;
+            // Create a client that use windows authentication
             using (var client = new WebClient()
             {
                 UseDefaultCredentials = true
             })
             {
-                //_api/web/GetFileByServerRelativeUrl('/Lists/Applications/Attachments/1/Gestion%20MP_Rec%20(Elior).rdp')/$value
-                //https://remoteapps.elior.net/RDWeb/Pages/rdp/cpub-FTE_Menu-PRO5-CmsRdsh.rdp
-                // https://clickoncetest1.blob.core.windows.net/clickoncetest/cpub-wordpad-EliorSession-CmsRdsh.rdp
                 try
                 {
-                    // If the rdp file does not exists in the directory
-                    if (!File.Exists(rdpFileName))
-                    {
-                        var rdpUrl = ConfigurationManager.AppSettings.Get("rdpFileUrl");
-                        client.DownloadFile(rdpUrl, rdpFileName);
-                    }
+                    // Step 1 : download the .rdp file from the server
+                    var rdpFileName = Constants.rdpFileName;
 
+                    // If the rdp file does not exists in the directory
+                    //if (!File.Exists(rdpFileName))
+                    //{
+                    var rdpUrl = Constants.rdpFileUrl;
+                    client.DownloadFile(rdpUrl, rdpFileName);
+                    //}
+                    // Step 2 : start the process that run the remote desktop application from command line
+                    using (Process proc = new Process { StartInfo = new ProcessStartInfo(Environment.CurrentDirectory + Constants.backslashSymbole + rdpFileName) })
+                    {
+                        proc.Start();
+                        proc.WaitForExit();
+                    }
+                }
+                catch (WebException ex)
+                {
+                    logger.Error(Constants.getRdpFromServerErrorMessage + ex.Message);
+                    throw;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
-                    Console.ReadKey();
+                    logger.Error(Constants.genericErrorMessage + ex.Message);
                     throw;
                 }
             }
-            try
-            {
-                Process proc = new Process
-                {
-                    StartInfo = new ProcessStartInfo(Environment.CurrentDirectory + "\\" + rdpFileName)
-                };
-                proc.StartInfo.CreateNoWindow = true;
-                proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                proc.Start();
-                proc.WaitForExit();
-                proc.Dispose();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.ReadKey();
-                throw;
-            }
         }
-
-
-
-
-
-
-        //        public static async Task<string> ResponseAsync()
-        //        {
-        //            HttpClient client = new HttpClient();
-        //            client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("text/html"));
-        //            client.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
-        //            client.DefaultRequestHeaders.AcceptLanguage.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("fr-FR"));
-
-        //            var values = new Dictionary<string, string>
-        //{
-        //{ "WorkSpaceID", "broker.contoso.com" },
-        //{ "RedirectorName", "broker.contoso.com" },
-        //{ "DomainUserName", "contoso\admin13" },
-        //{ "UserPass", "Avanade1234!" },
-        //{ "MachineType", "private" },
-
-        //};
-
-        //            var content = new FormUrlEncodedContent(values);
-
-        //            var response = await client.PostAsync("https://contoso.francecentral.cloudapp.azure.com/RDWeb/Pages/en-US/login.aspx?ReturnUrl=/RDWeb/Pages/rdp/cpub-win32calc-EliorSession-CmsRdsh.rdp", content);
-
-        //            var responseString = await response.Content.ReadAsStringAsync();
-        //            client.Dispose();
-        //            return responseString;
-        //        }
     }
 }
