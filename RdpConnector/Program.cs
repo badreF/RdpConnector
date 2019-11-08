@@ -14,9 +14,16 @@ namespace RdpConnector
     {
         static void Main()
         {
+            GetAndLaunchRemoteConnection();
+
+        }
+
+        private static void GetAndLaunchRemoteConnection()
+        {
             var rdpFileName = ConfigurationManager.AppSettings.Get("rdpFileName");
             //_ = ResponseAsync().Result;
-            using (var client = new WebClient() {
+            using (var client = new WebClient()
+            {
                 UseDefaultCredentials = true
             })
             {
@@ -31,7 +38,7 @@ namespace RdpConnector
                         var rdpUrl = ConfigurationManager.AppSettings.Get("rdpFileUrl");
                         client.DownloadFile(rdpUrl, rdpFileName);
                     }
-                   
+
                 }
                 catch (Exception ex)
                 {
@@ -58,7 +65,6 @@ namespace RdpConnector
                 Console.ReadKey();
                 throw;
             }
-
         }
 
 
