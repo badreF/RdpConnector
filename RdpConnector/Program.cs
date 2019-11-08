@@ -1,14 +1,20 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 
 namespace RdpConnector
 {
+    /// <summary>
+    /// This application is used to download an rdp file and launch it dynamically
+    /// Specify the rdp file name and file url in the app config 
+    /// </summary>
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            var rdpFileName = "cpub-FTE_Menu-PRO5-CmsRdsh.rdp";
+            var rdpFileName = ConfigurationManager.AppSettings.Get("rdpFileName");
             //_ = ResponseAsync().Result;
             using (var client = new WebClient() {
                 UseDefaultCredentials = true
@@ -16,10 +22,16 @@ namespace RdpConnector
             {
                 //_api/web/GetFileByServerRelativeUrl('/Lists/Applications/Attachments/1/Gestion%20MP_Rec%20(Elior).rdp')/$value
                 //https://remoteapps.elior.net/RDWeb/Pages/rdp/cpub-FTE_Menu-PRO5-CmsRdsh.rdp
+                // https://clickoncetest1.blob.core.windows.net/clickoncetest/cpub-wordpad-EliorSession-CmsRdsh.rdp
                 try
                 {
-                    client.DownloadFile("http://helios-rec.elior.net/_api/web/GetFileByServerRelativeUrl('/Lists/Applications/Attachments/1/Gestion%20MP_Rec%20(Elior).rdp')/$value", rdpFileName);
-
+                    // If the rdp file does not exists in the directory
+                    if (!File.Exists(rdpFileName))
+                    {
+                        var rdpUrl = ConfigurationManager.AppSettings.Get("rdpFileUrl");
+                        client.DownloadFile(rdpUrl, rdpFileName);
+                    }
+                   
                 }
                 catch (Exception ex)
                 {
@@ -28,19 +40,17 @@ namespace RdpConnector
                     throw;
                 }
             }
-
-
-            Process proc = new Process
-            {
-                StartInfo = new ProcessStartInfo(Environment.CurrentDirectory + "\\" + rdpFileName)
-            };
-
             try
             {
+                Process proc = new Process
+                {
+                    StartInfo = new ProcessStartInfo(Environment.CurrentDirectory + "\\" + rdpFileName)
+                };
                 proc.StartInfo.CreateNoWindow = true;
                 proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 proc.Start();
                 proc.WaitForExit();
+                proc.Dispose();
             }
             catch (Exception ex)
             {
@@ -48,7 +58,6 @@ namespace RdpConnector
                 Console.ReadKey();
                 throw;
             }
-            //Process.Start("C:\\Users\\badre-addine.fouad\\Desktop\\gw-vm.rdp");
 
         }
 
