@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
-using System.IO;
 using System.Net;
+using System.Windows;
 
 namespace RdpConnector
 {
@@ -9,16 +9,18 @@ namespace RdpConnector
     /// This application is used to download an rdp file and launch it dynamically
     /// Specify the rdp file name and file url in the app config 
     /// </summary>
-    class Program
+    internal class Program
     {
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        static void Main()
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
+        private static void Main()
         {
             LaunchRemoteConnection();
         }
 
         private static void LaunchRemoteConnection()
         {
+
             // Create a client that use windows authentication
             using (var client = new WebClient()
             {
@@ -28,16 +30,16 @@ namespace RdpConnector
                 try
                 {
                     // Step 1 : download the .rdp file from the server
-                    var rdpFileName = Constants.rdpFileName;
+                    var rdpFileName = Constants.RdpFileName;
 
                     // If the rdp file does not exists in the directory
                     //if (!File.Exists(rdpFileName))
                     //{
-                    var rdpUrl = Constants.rdpFileUrl;
+                    var rdpUrl = Constants.RdpFileUrl;
                     client.DownloadFile(rdpUrl, rdpFileName);
                     //}
                     // Step 2 : start the process that run the remote desktop application from command line
-                    using (Process proc = new Process { StartInfo = new ProcessStartInfo(Environment.CurrentDirectory + Constants.backslashSymbole + rdpFileName) })
+                    using (var proc = new Process { StartInfo = new ProcessStartInfo(Environment.CurrentDirectory + Constants.BackslashSymbole + rdpFileName) })
                     {
                         proc.Start();
                         proc.WaitForExit();
@@ -45,15 +47,20 @@ namespace RdpConnector
                 }
                 catch (WebException ex)
                 {
-                    logger.Error(Constants.getRdpFromServerErrorMessage + ex.Message);
-                    throw;
+                    Logger.Error(Constants.GetRdpFromServerErrorMessage + ex.Message);
+                    ShowErrorWindowsBox();
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(Constants.genericErrorMessage + ex.Message);
-                    throw;
+                    Logger.Error(Constants.GenericErrorMessage + ex.Message);
+                    ShowErrorWindowsBox();
                 }
             }
+        }
+
+        private static void ShowErrorWindowsBox()
+        {
+            MessageBox.Show(Constants.GenericErrorMessageWindowsBox, Constants.GenericErrorMessageWindowsBoxTitle, MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }
