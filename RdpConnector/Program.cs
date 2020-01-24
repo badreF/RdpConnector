@@ -65,12 +65,12 @@ namespace RdpConnector
                 try
                 {
                     // Step 1 : download the .rdp file from the server
-                    string rdpFileName = ConfigurationManager.AppSettings.Get(string.Format("rdpFileUrl_{0}", appCode));
+                    string rdpFileName = ConfigurationManager.AppSettings.Get(string.Format("rdpFileName_{0}", appCode));
                     if (string.IsNullOrEmpty(rdpFileName))
                     {
                         rdpFileName = string.Format("{0}.rdp", appCode);
                     }
-                    string rdpUrl = ConfigurationManager.AppSettings.Get(string.Format("rdpFileName_{0}", appCode));
+                    string rdpUrl = ConfigurationManager.AppSettings.Get(string.Format("rdpFileUrl_{0}", appCode));
                     if (string.IsNullOrEmpty(rdpUrl))
                     {
                         ShowErrorWindowsBox("The url containing the rdp file does not exists");
