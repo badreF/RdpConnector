@@ -16,7 +16,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TargetFrameworkProfile />
-    <PublishUrl>C:\Users\badre-addine.fouad\Desktop\Deploy2\</PublishUrl>
+    <PublishUrl>C:\Users\badre-addine.fouad\Desktop\DeployLOS\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
     <UpdateEnabled>true</UpdateEnabled>
@@ -26,10 +26,11 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>https://clickoncetest1.blob.core.windows.net/clickoncetest/</InstallUrl>
+    <InstallUrl>https://clickoncetest1.blob.core.windows.net/clickoncetest2/LOS/</InstallUrl>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>19</ApplicationRevision>
+    <TrustUrlParameters>true</TrustUrlParameters>
+    <ApplicationRevision>36</ApplicationRevision>
     <ApplicationVersion>1.0.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -88,6 +89,8 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Web" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>

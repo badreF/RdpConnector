@@ -1,7 +1,12 @@
 ﻿using System;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.Diagnostics;
 using System.Net;
 using System.Windows;
+using System.Web;
+using System.Deployment.Application;
+using System.Linq;
 
 namespace RdpConnector
 {
@@ -15,14 +20,44 @@ namespace RdpConnector
 
         private static void Main()
         {
-            LaunchRemoteConnection();
+            NameValueCollection queryStringParameters = GetQueryStringParameters();
+            if (queryStringParameters.HasKeys())
+            {
+                string codeKey = queryStringParameters.AllKeys.FirstOrDefault();
+                string codeValue = queryStringParameters[codeKey].ToUpperInvariant();
+                LaunchRemoteConnection(codeValue);
+            }
+            else
+            {
+                LaunchRemoteConnection("gmp");
+                ShowErrorWindowsBox("Query string does not work");
+            }
+
+        }
+        /// <summary>
+        /// This method is used to get the query string parameters 
+        /// </summary>
+        /// <returns></returns>
+        private static NameValueCollection GetQueryStringParameters()
+        {
+            NameValueCollection nameValueTable = new NameValueCollection();
+            if (ApplicationDeployment.IsNetworkDeployed)
+            {
+                if (ApplicationDeployment.CurrentDeployment.ActivationUri == null) return (nameValueTable);
+                string queryString = ApplicationDeployment.CurrentDeployment.ActivationUri.Query;
+                nameValueTable = HttpUtility.ParseQueryString(queryString);
+            }
+            return (nameValueTable);
         }
 
-        private static void LaunchRemoteConnection()
+        /// <summary>
+        /// This method is used to download the rdp file and launch the rdp using mstsc process
+        /// </summary>
+        private static void LaunchRemoteConnection(string appCode)
         {
 
             // Create a client that use windows authentication
-            using (var client = new WebClient()
+            using (var client = new WebClient
             {
                 UseDefaultCredentials = true
             })
@@ -30,16 +65,21 @@ namespace RdpConnector
                 try
                 {
                     // Step 1 : download the .rdp file from the server
-                    var rdpFileName = Constants.RdpFileName;
-
-                    // If the rdp file does not exists in the directory
-                    //if (!File.Exists(rdpFileName))
-                    //{
-                    var rdpUrl = Constants.RdpFileUrl;
+                    string rdpFileName = ConfigurationManager.AppSettings.Get(string.Format("rdpFileUrl_{0}", appCode));
+                    if (string.IsNullOrEmpty(rdpFileName))
+                    {
+                        rdpFileName = string.Format("{0}.rdp", appCode);
+                    }
+                    string rdpUrl = ConfigurationManager.AppSettings.Get(string.Format("rdpFileName_{0}", appCode));
+                    if (string.IsNullOrEmpty(rdpUrl))
+                    {
+                        ShowErrorWindowsBox("The url containing the rdp file does not exists");
+                        return;
+                    }
                     client.DownloadFile(rdpUrl, rdpFileName);
-                    //}
+                    
                     // Step 2 : start the process that run the remote desktop application from command line
-                    using (var proc = new Process { StartInfo = new ProcessStartInfo(Environment.CurrentDirectory + Constants.BackslashSymbole + rdpFileName) })
+                    using (var proc = new Process { StartInfo = new ProcessStartInfo(Environment.CurrentDirectory + Constants.BackslashSymbol + rdpFileName) })
                     {
                         proc.Start();
                         proc.WaitForExit();
@@ -48,19 +88,23 @@ namespace RdpConnector
                 catch (WebException ex)
                 {
                     Logger.Error(Constants.GetRdpFromServerErrorMessage + ex.Message);
-                    ShowErrorWindowsBox();
+                    ShowErrorWindowsBox(ex.Message + "\n" + Constants.InternetErrorMessage + "\n" + Constants.NetworkErrorMessage + "\n" + Constants.AuthorizationErrorMessage);
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(Constants.GenericErrorMessage + ex.Message);
-                    ShowErrorWindowsBox();
+                    ShowErrorWindowsBox(Constants.GenericErrorMessage);
                 }
             }
         }
 
-        private static void ShowErrorWindowsBox()
+        /// <summary>
+        /// This is used to show an error popup if something wrong is coming
+        /// </summary>
+        /// <param name="errorMessage"></param>
+        private static void ShowErrorWindowsBox(string errorMessage)
         {
-            MessageBox.Show(Constants.GenericErrorMessageWindowsBox, Constants.GenericErrorMessageWindowsBoxTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(errorMessage, Constants.GenericErrorMessageWindowsBoxTitle, MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }

@@ -12,16 +12,18 @@ namespace RdpConnector
         // https://clickoncetest1.blob.core.windows.net/clickoncetest/cpub-wordpad-EliorSession-CmsRdsh.rdp
 
 
-        public static readonly string RdpFileUrlLabel = "rdpFileUrl"; 
+        public static readonly string RdpFileUrlLabel = "rdpFileUrl";
         public static readonly string RdpFileNameLabel = "rdpFileName";
-        public static readonly string BackslashSymbole = "\\";
+        public static readonly string BackslashSymbol = "\\";
         // App config constants
-        public static readonly string RdpFileName = ConfigurationManager.AppSettings.Get(RdpFileNameLabel);
-        public static readonly string RdpFileUrl = ConfigurationManager.AppSettings.Get(RdpFileUrlLabel);
 
 
         // Error message
         public static readonly string GetRdpFromServerErrorMessage = "an error occured when downloading the rdp file : ";
+        public static readonly string AuthorizationErrorMessage = "Please make sure you have the rights to launch this app.";
+        public static readonly string NetworkErrorMessage = "Please make sure you are on the rights network to launch this app.";
+        public static readonly string InternetErrorMessage = "Please make sure you are connected to internet to launch this app.";
+
         public static readonly string GenericErrorMessage = "an error occured : ";
         public static readonly string GenericErrorMessageWindowsBoxTitle = "ERROR";
 
