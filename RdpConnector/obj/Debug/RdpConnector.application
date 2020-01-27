@@ -11,14 +11,14 @@
     <deploymentProvider codebase="https://clickoncetest1.blob.core.windows.net/clickoncetest/RdpConnector.application" />
   </deployment>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="RdpConnector.exe.manifest" size="7095">
+    <dependentAssembly dependencyType="install" codebase="RdpConnector.exe.manifest" size="5030">
       <assemblyIdentity name="RdpConnector.exe" version="1.0.0.9" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>C6NN82GeP69zxwx+smlmBevBK0g=</dsig:DigestValue>
+        <dsig:DigestValue>xeik8o3pSnn/xAqtutsAR14vEyY=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
